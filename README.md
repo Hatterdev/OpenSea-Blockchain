@@ -1,27 +1,37 @@
-# Next.js + Tailwind CSS Example
+# [OpenSea Clone](https://open-sea-blockchain.vercel.app/) - Web 3.0 Blockchain Application
 
-This example shows how to use [Tailwind CSS](https://tailwindcss.com/) [(v3.0)](https://tailwindcss.com/blog/tailwindcss-v3) with Next.js. It follows the steps outlined in the official [Tailwind docs](https://tailwindcss.com/docs/guides/nextjs).
+![Image1](https://github.com/kalibani/OpenSea-Blockchain/blob/main/assets/ScreenShot1.png)
 
-## Preview
+![Image2](https://github.com/kalibani/OpenSea-Blockchain/blob/main/assets/ScreenShot2.png)
 
-Preview the example live on [StackBlitz](http://stackblitz.com/):
+## Introduction
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-tailwindcss)
+OpenSea - Send Crypto across the world, this application using Next JS, Tailwind css and Web 3.0 methodologies such as Thirdweb and Metamask
 
-## Deploy your own
+## Usage
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+### Development
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-tailwindcss&project-name=with-tailwindcss&repository-name=with-tailwindcss)
+In the project directory, you can run:
 
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
+Install Dependencies:
 
 ```bash
-npx create-next-app --example with-tailwindcss with-tailwindcss-app
-# or
-yarn create next-app --example with-tailwindcss with-tailwindcss-app
+npm install
 ```
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+Runs the app in the development mode:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+### Build
+
+To build the App, run
+
+```bash
+npm run build
+```
