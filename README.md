@@ -6,7 +6,7 @@
 
 ## Introduction
 
-OpenSea - Send Crypto across the world, this application using Next JS, Tailwind css and Web 3.0 methodologies such as Thirdweb and Metamask
+OpenSea - This is a OpenSea Clone Application built using Next JS, Tailwind css and Web 3.0 methodologies such as Thirdweb and Metamask
 
 ## Usage
 
