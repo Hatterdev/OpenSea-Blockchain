@@ -64,7 +64,7 @@ const Collection = () => {
 
     const sdk = new ThirdwebSDK(provider.getSigner())
     return sdk.getMarketplaceModule(
-      '0x491Cfd302ecba1Eb431C75a850A4EEd6F6699B60'
+      '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
     )
   }, [provider])
 
@@ -172,7 +172,7 @@ const Collection = () => {
             <div className={style.collectionStat}>
               <div className={style.statValue}>
                 <img
-                  src="https://storage.opensea.io/files/6f8e2979d428180222796ff4a33ab929.svg"
+                  src="https://blog.logomyway.com/wp-content/uploads/2021/11/Ethereum-logo.png"
                   alt="eth"
                   className={style.ethLogo}
                 />
@@ -183,7 +183,7 @@ const Collection = () => {
             <div className={style.collectionStat}>
               <div className={style.statValue}>
                 <img
-                  src="https://storage.opensea.io/files/6f8e2979d428180222796ff4a33ab929.svg"
+                  src="https://blog.logomyway.com/wp-content/uploads/2021/11/Ethereum-logo.png"
                   alt="eth"
                   className={style.ethLogo}
                 />
