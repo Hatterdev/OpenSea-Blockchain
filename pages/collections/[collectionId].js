@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { useWeb3 } from '@3rdweb/hooks'
+// import { useWeb3 } from '@3rdweb/hooks'
 import { client } from '../../lib/sanityClient'
-import { ThirdwebSDK } from '@3rdweb/sdk'
+// import { ThirdwebSDK } from '@3rdweb/sdk'
 import Header from '../../components/Header'
 import { CgWebsite } from 'react-icons/cg'
 import { AiOutlineInstagram, AiOutlineTwitter } from 'react-icons/ai'
 import { HiDotsVertical } from 'react-icons/hi'
 import NFTCard from '../../components/NFTCard'
+
+import { useNFTs, useContract, useAddress, useSDK } from '@thirdweb-dev/react'
 
 const style = {
   bannerImageContainer: `h-[20vh] w-screen overflow-hidden flex justify-center items-center`,
@@ -34,49 +36,80 @@ const style = {
 
 const Collection = () => {
   const router = useRouter()
-  const { provider } = useWeb3()
+  // const { provider } = useWeb3()
   const { collectionId } = router.query
   const [collection, setCollection] = useState({})
   const [nfts, setNfts] = useState([])
   const [listings, setListings] = useState([])
 
-  // https://eth-rinkeby.alchemyapi.io/v2/tfB966MZoSdT8vMXh9WSQ3K18q3jz3C0
+  const userAdress = useAddress()
 
-  const nftModule = useMemo(() => {
-    if (!provider) return
+  const contractAddress = '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
 
-    const sdk = new ThirdwebSDK(provider.getSigner())
-    return sdk.getNFTModule(collectionId)
-  }, [provider])
+  const NFTContract = useContract(contractAddress)
+  const { data, isLoading, error } = useNFTs(NFTContract?.contract, {
+    start: 0,
+    count: 100,
+  })
 
   // get all NFTs in the collection
+  const getNFts = async () => {
+    console.log('run')
+    const data = await NFTContract?.contract?.erc721.getAll()
+    setNfts(data)
+  }
+
   useEffect(() => {
-    if (!nftModule) return
-    ;(async () => {
-      const nfts = await nftModule.getAll()
+    if (NFTContract?.contract) {
+      getNFts()
+    }
+    // if (NFTContract?.contract.erc721) {
+    // }
+  }, [userAdress, NFTContract?.contract])
 
-      setNfts(nfts)
-    })()
-  }, [nftModule])
+  // console.log('data', data)
+  const marketplaceContractAdress = '0x85Bc5b0737AD0Ba5C6269ADF4DA5c21ABe09F7bB'
+  const marketplaceContract = useContract(marketplaceContractAdress)
+  const getAllListingsMarketPlace = async () => {
+    // const { contract } = marketplaceContract
+    const marketplaces =
+      await marketplaceContract?.contract?.directListings.getAll()
+    console.log('marketplace', marketplaces)
+    setListings(marketplaces)
+  }
+  // const sdk = useSDK()
 
-  const marketPlaceModule = useMemo(() => {
-    if (!provider) return
+  // https://eth-rinkeby.alchemyapi.io/v2/tfB966MZoSdT8vMXh9WSQ3K18q3jz3C0
 
-    const sdk = new ThirdwebSDK(provider.getSigner())
-    return sdk.getMarketplaceModule(
-      '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
-    )
-  }, [provider])
+  // const nftModule = useMemo(() => {
+  //   // if (!provider) return
 
-  // get all listings in the collection
+  //   const sdkk = sdk.getSigner()
+
+  //   // const sdk = new ThirdwebSDK(provider.getSigner())
+  //   return sdkk.getNFTModule(collectionId)
+  // }, [])
+
+  // const marketPlaceModule = useMemo(() => {
+  //   if (!provider) return
+
+  //   const sdk = new ThirdwebSDK(provider.getSigner())
+  //   return sdk.getMarketplaceModule(
+  //     '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
+  //   )
+  // }, [provider])
+
+  // // get all listings in the collection
   useEffect(() => {
-    if (!marketPlaceModule) return
-    ;(async () => {
-      setListings(await marketPlaceModule.getAllListings())
-    })()
-  }, [marketPlaceModule])
+    getAllListingsMarketPlace()
+  }, [useAddress, marketplaceContract?.contract])
 
   const fetchCollectionData = async (sanityClient = client) => {
+    console.log(
+      'collectionId',
+      collectionId,
+      '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
+    )
     const query = `*[_type == "marketItems" && contractAddress == "${collectionId}" ] {
       "imageUrl": profileImage.asset->url,
       "bannerImageUrl": bannerImage.asset->url,
@@ -89,15 +122,17 @@ const Collection = () => {
       description
     }`
 
-    const collectionData = await sanityClient.fetch(query)
+    if (collectionId) {
+      const collectionData = await sanityClient.fetch(query)
+      setCollection(collectionData[0])
+    }
 
     // the query returns 1 object inside of an array
-    await setCollection(collectionData[0])
   }
 
   useEffect(() => {
     fetchCollectionData()
-  }, [collectionId])
+  }, [collectionId, useAddress])
 
   return (
     <div className="overflow-hidden">
@@ -160,7 +195,7 @@ const Collection = () => {
         <div className={style.midRow}>
           <div className={style.statsContainer}>
             <div className={style.collectionStat}>
-              <div className={style.statValue}>{nfts.length}</div>
+              <div className={style.statValue}>{nfts?.length}</div>
               <div className={style.statName}>items</div>
             </div>
             <div className={style.collectionStat}>
@@ -182,11 +217,6 @@ const Collection = () => {
             </div>
             <div className={style.collectionStat}>
               <div className={style.statValue}>
-                <img
-                  src="https://blog.logomyway.com/wp-content/uploads/2021/11/Ethereum-logo.png"
-                  alt="eth"
-                  className={style.ethLogo}
-                />
                 {collection?.volumeTraded}.5K
               </div>
               <div className={style.statName}>volume traded</div>
@@ -198,10 +228,10 @@ const Collection = () => {
         </div>
       </div>
       <div className="flex flex-wrap ">
-        {nfts.map((nftItem, id) => (
+        {nfts?.map((nftItem, id) => (
           <NFTCard
             key={id}
-            nftItem={nftItem}
+            nftItem={nftItem?.metadata}
             title={collection?.title}
             listings={listings}
           />

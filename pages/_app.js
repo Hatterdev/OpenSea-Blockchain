@@ -1,6 +1,7 @@
 import '../styles/globals.css'
 import { ThirdwebWeb3Provider } from '@3rdweb/hooks'
 
+import { ThirdwebProvider } from '@thirdweb-dev/react'
 import { Sepolia, Ethereum, Polygon } from '@thirdweb-dev/chains'
 /**
  * The chain ID 4 represents the Rinkeby network
@@ -13,13 +14,13 @@ const connectors = {
 
 function MyApp({ Component, pageProps }) {
   return (
-    <ThirdwebWeb3Provider
+    <ThirdwebProvider
       activeChain={Sepolia}
       supportedChains={[Ethereum, Polygon, Sepolia]}
-      connectors={connectors}
+      // connectors={connectors}
     >
       <Component {...pageProps} />
-    </ThirdwebWeb3Provider>
+    </ThirdwebProvider>
   )
 }
 

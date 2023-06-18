@@ -19,7 +19,7 @@ const style = {
   likeIcon: `text-xl mr-2`,
 }
 
-const NFTCard = ({ nftItem, title, listings }) => {
+const NFTCard = ({ nftItem, title, listings = [] }) => {
   const [isListed, setIsListed] = useState(false)
   const [price, setPrice] = useState(0)
 
@@ -27,7 +27,7 @@ const NFTCard = ({ nftItem, title, listings }) => {
     const listing = listings.find((listing) => listing.asset.id === nftItem.id)
     if (Boolean(listing)) {
       setIsListed(true)
-      setPrice(listing.buyoutCurrencyValuePerToken.displayValue)
+      setPrice(listing.currencyValuePerToken?.displayValue)
     }
   }, [listings, nftItem])
 
@@ -55,7 +55,7 @@ const NFTCard = ({ nftItem, title, listings }) => {
               <div className={style.priceTag}>Price</div>
               <div className={style.priceValue}>
                 <img
-                  src="https://storage.opensea.io/files/6f8e2979d428180222796ff4a33ab929.svg"
+                  src="https://blog.logomyway.com/wp-content/uploads/2021/11/Ethereum-logo.png"
                   alt="eth"
                   className={style.ethLogo}
                 />

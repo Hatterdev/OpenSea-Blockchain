@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Header from '../components/Header'
 import Hero from '../components/Hero'
 import { useWeb3 } from '@3rdweb/hooks'
+import { ConnectWallet, useAddress } from '@thirdweb-dev/react'
 import { useEffect } from 'react'
 import { client } from '../lib/sanityClient'
 import toast, { Toaster } from 'react-hot-toast'
@@ -14,7 +15,9 @@ const style = {
 }
 
 export default function Home() {
-  const { address, connectWallet } = useWeb3()
+  // const { address, connectWallet } = useWeb3()
+  const address = useAddress()
+  // const  connectWallet } = useWeb3()
 
   const welcomeUser = (userName, toastHandler = toast) => {
     toastHandler.success(
@@ -54,12 +57,13 @@ export default function Home() {
         </>
       ) : (
         <div className={style.walletConnectWrapper}>
-          <button
+          {/* <button
             className={style.button}
             onClick={() => connectWallet('injected')}
           >
             Connect Wallet
-          </button>
+          </button> */}
+          <ConnectWallet />
           <div className={style.details}>
             You need Chrome to be
             <br /> able to run this app.

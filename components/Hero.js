@@ -21,7 +21,7 @@ const style = {
 const Hero = () => {
   const router = useRouter()
   const handleClick = () => {
-    router.push('/collections/0x37ccD16aDA40d2849aEAD68cdADE757F1011cC98')
+    router.push('/collections/0xf0027883F49A7d03223f919bB5Cc1f3995e891C6')
   }
   return (
     <div className={style.wrapper}>
