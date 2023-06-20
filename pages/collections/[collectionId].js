@@ -1,16 +1,15 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
-// import { useWeb3 } from '@3rdweb/hooks'
+import Image from 'next/image'
+import { useContract, useAddress } from '@thirdweb-dev/react'
 import { client } from '../../lib/sanityClient'
-// import { ThirdwebSDK } from '@3rdweb/sdk'
 import Header from '../../components/Header'
 import { CgWebsite } from 'react-icons/cg'
 import { AiOutlineInstagram, AiOutlineTwitter } from 'react-icons/ai'
 import { HiDotsVertical } from 'react-icons/hi'
 import NFTCard from '../../components/NFTCard'
 
-import { useNFTs, useContract, useAddress, useSDK } from '@thirdweb-dev/react'
+import loader from '../../assets/loader.svg'
 
 const style = {
   bannerImageContainer: `h-[20vh] w-screen overflow-hidden flex justify-center items-center`,
@@ -36,80 +35,43 @@ const style = {
 
 const Collection = () => {
   const router = useRouter()
-  // const { provider } = useWeb3()
   const { collectionId } = router.query
   const [collection, setCollection] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
   const [nfts, setNfts] = useState([])
   const [listings, setListings] = useState([])
 
-  const userAdress = useAddress()
-
+  const userAddress = useAddress()
   const contractAddress = '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
-
   const NFTContract = useContract(contractAddress)
-  const { data, isLoading, error } = useNFTs(NFTContract?.contract, {
-    start: 0,
-    count: 100,
-  })
 
   // get all NFTs in the collection
   const getNFts = async () => {
-    console.log('run')
     const data = await NFTContract?.contract?.erc721.getAll()
     setNfts(data)
+    return data
   }
 
   useEffect(() => {
     if (NFTContract?.contract) {
       getNFts()
     }
-    // if (NFTContract?.contract.erc721) {
-    // }
-  }, [userAdress, NFTContract?.contract])
+  }, [userAddress, NFTContract?.contract])
 
-  // console.log('data', data)
-  const marketplaceContractAdress = '0x85Bc5b0737AD0Ba5C6269ADF4DA5c21ABe09F7bB'
-  const marketplaceContract = useContract(marketplaceContractAdress)
+  // get all listings in the collection
+  const marketplaceContractAddress =
+    '0x85Bc5b0737AD0Ba5C6269ADF4DA5c21ABe09F7bB'
+  const marketplaceContract = useContract(marketplaceContractAddress)
   const getAllListingsMarketPlace = async () => {
-    // const { contract } = marketplaceContract
     const marketplaces =
       await marketplaceContract?.contract?.directListings.getAll()
-    console.log('marketplace', marketplaces)
-    setListings(marketplaces)
+    if (marketplaces) {
+      setListings(marketplaces)
+    }
+    return marketplaces
   }
-  // const sdk = useSDK()
-
-  // https://eth-rinkeby.alchemyapi.io/v2/tfB966MZoSdT8vMXh9WSQ3K18q3jz3C0
-
-  // const nftModule = useMemo(() => {
-  //   // if (!provider) return
-
-  //   const sdkk = sdk.getSigner()
-
-  //   // const sdk = new ThirdwebSDK(provider.getSigner())
-  //   return sdkk.getNFTModule(collectionId)
-  // }, [])
-
-  // const marketPlaceModule = useMemo(() => {
-  //   if (!provider) return
-
-  //   const sdk = new ThirdwebSDK(provider.getSigner())
-  //   return sdk.getMarketplaceModule(
-  //     '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
-  //   )
-  // }, [provider])
-
-  // // get all listings in the collection
-  useEffect(() => {
-    getAllListingsMarketPlace()
-  }, [useAddress, marketplaceContract?.contract])
 
   const fetchCollectionData = async (sanityClient = client) => {
-    console.log(
-      'collectionId',
-      collectionId,
-      '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
-    )
     const query = `*[_type == "marketItems" && contractAddress == "${collectionId}" ] {
       "imageUrl": profileImage.asset->url,
       "bannerImageUrl": bannerImage.asset->url,
@@ -125,14 +87,31 @@ const Collection = () => {
     if (collectionId) {
       const collectionData = await sanityClient.fetch(query)
       setCollection(collectionData[0])
+      return collectionData[0]
     }
+  }
 
-    // the query returns 1 object inside of an array
+  const getALL = () => {
+    setIsLoading(true)
+    Promise.all([
+      getNFts(),
+      fetchCollectionData(),
+      getAllListingsMarketPlace(),
+    ]).finally(() => {
+      if (nfts && collection && listings) {
+        setIsLoading(false)
+      }
+    })
   }
 
   useEffect(() => {
-    fetchCollectionData()
-  }, [collectionId, useAddress])
+    getALL()
+  }, [
+    collectionId,
+    userAddress,
+    NFTContract?.contract,
+    marketplaceContract?.contract,
+  ])
 
   return (
     <div className="overflow-hidden">
@@ -160,83 +139,100 @@ const Collection = () => {
             alt="profile image"
           />
         </div>
-        <div className={style.endRow}>
-          <div className={style.socialIconsContainer}>
-            <div className={style.socialIconsWrapper}>
-              <div className={style.socialIconsContent}>
-                <div className={style.socialIcon}>
-                  <CgWebsite />
-                </div>
-                <div className={style.divider} />
-                <div className={style.socialIcon}>
-                  <AiOutlineInstagram />
-                </div>
-                <div className={style.divider} />
-                <div className={style.socialIcon}>
-                  <AiOutlineTwitter />
-                </div>
-                <div className={style.divider} />
-                <div className={style.socialIcon}>
-                  <HiDotsVertical />
+        {isLoading && (
+          <>
+            <div className="flex h-[50vh] items-center justify-center">
+              <Image
+                src={loader}
+                alt="loader"
+                className="h-[100px] w-[100px] object-contain"
+              />
+            </div>
+          </>
+        )}
+        {!isLoading && (
+          <>
+            <div className={style.endRow}>
+              <div className={style.socialIconsContainer}>
+                <div className={style.socialIconsWrapper}>
+                  <div className={style.socialIconsContent}>
+                    <div className={style.socialIcon}>
+                      <CgWebsite />
+                    </div>
+                    <div className={style.divider} />
+                    <div className={style.socialIcon}>
+                      <AiOutlineInstagram />
+                    </div>
+                    <div className={style.divider} />
+                    <div className={style.socialIcon}>
+                      <AiOutlineTwitter />
+                    </div>
+                    <div className={style.divider} />
+                    <div className={style.socialIcon}>
+                      <HiDotsVertical />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className={style.midRow}>
-          <div className={style.title}>{collection?.title}</div>
-        </div>
-        <div className={style.midRow}>
-          <div className={style.createdBy}>
-            Created by{' '}
-            <span className="text-[#2081e2]">{collection?.creator}</span>
-          </div>
-        </div>
-        <div className={style.midRow}>
-          <div className={style.statsContainer}>
-            <div className={style.collectionStat}>
-              <div className={style.statValue}>{nfts?.length}</div>
-              <div className={style.statName}>items</div>
+            <div className={style.midRow}>
+              <div className={style.title}>{collection?.title}</div>
             </div>
-            <div className={style.collectionStat}>
-              <div className={style.statValue}>
-                {collection?.allOwners ? collection.allOwners.length : ''}
+            <div className={style.midRow}>
+              <div className={style.createdBy}>
+                Created by{' '}
+                <span className="text-[#2081e2]">{collection?.creator}</span>
               </div>
-              <div className={style.statName}>owners</div>
             </div>
-            <div className={style.collectionStat}>
-              <div className={style.statValue}>
-                <img
-                  src="https://blog.logomyway.com/wp-content/uploads/2021/11/Ethereum-logo.png"
-                  alt="eth"
-                  className={style.ethLogo}
-                />
-                {collection?.floorPrice}
+            <div className={style.midRow}>
+              <div className={style.statsContainer}>
+                <div className={style.collectionStat}>
+                  <div className={style.statValue}>{nfts?.length}</div>
+                  <div className={style.statName}>items</div>
+                </div>
+                <div className={style.collectionStat}>
+                  <div className={style.statValue}>
+                    {collection?.allOwners ? collection.allOwners.length : ''}
+                  </div>
+                  <div className={style.statName}>owners</div>
+                </div>
+                <div className={style.collectionStat}>
+                  <div className={style.statValue}>
+                    <img
+                      src="https://blog.logomyway.com/wp-content/uploads/2021/11/Ethereum-logo.png"
+                      alt="eth"
+                      className={style.ethLogo}
+                    />
+                    {collection?.floorPrice}
+                  </div>
+                  <div className={style.statName}>floor price</div>
+                </div>
+                <div className={style.collectionStat}>
+                  <div className={style.statValue}>
+                    {collection?.volumeTraded}.5K
+                  </div>
+                  <div className={style.statName}>volume traded</div>
+                </div>
               </div>
-              <div className={style.statName}>floor price</div>
             </div>
-            <div className={style.collectionStat}>
-              <div className={style.statValue}>
-                {collection?.volumeTraded}.5K
-              </div>
-              <div className={style.statName}>volume traded</div>
+            <div className={style.midRow}>
+              <div className={style.description}>{collection?.description}</div>
             </div>
-          </div>
-        </div>
-        <div className={style.midRow}>
-          <div className={style.description}>{collection?.description}</div>
-        </div>
+          </>
+        )}
       </div>
-      <div className="flex flex-wrap ">
-        {nfts?.map((nftItem, id) => (
-          <NFTCard
-            key={id}
-            nftItem={nftItem?.metadata}
-            title={collection?.title}
-            listings={listings}
-          />
-        ))}
-      </div>
+      {!isLoading && (
+        <div className="flex flex-wrap ">
+          {nfts?.map((nftItem, id) => (
+            <NFTCard
+              key={id}
+              nftItem={nftItem?.metadata}
+              title={collection?.title}
+              listings={listings}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

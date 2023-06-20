@@ -38,20 +38,20 @@ const Hero = () => {
               <button className={style.accentedButton} onClick={handleClick}>
                 Explore
               </button>
-              <button className={style.button}>Create</button>
+              {/* <button className={style.button}>Create</button> */}
             </div>
           </div>
           <div className={style.cardContainer}>
             <img
               className="rounded-t-lg"
               src="https://lh3.googleusercontent.com/ujepnqpnL0nDQIHsWxlCXzyw4pf01yjz1Jmb4kAQHumJAPrSEj0-e3ABMZlZ1HEpJoqwOcY_kgnuJGzfXbd2Tijri66GXUtfN2MXQA=s550"
-              alt=""
+              alt="icon-1"
             />
             <div className={style.infoContainer}>
               <img
                 className="h-[2.25rem] rounded-full"
                 src="https://lh3.googleusercontent.com/qQj55gGIWmT1EnMmGQBNUpIaj0qTyg4YZSQ2ymJVvwr_mXXjuFiHJG9d3MRgj5DVgyLa69u8Tq9ijSm_stsph8YmIJlJQ1e7n6xj=s64"
-                alt=""
+                alt="icon-2"
               />
               <div className={style.author}>
                 <div className={style.name}>Jolly</div>

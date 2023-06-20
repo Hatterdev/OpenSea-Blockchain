@@ -1,6 +1,7 @@
 import Header from '../../components/Header'
 import { useEffect, useMemo, useState } from 'react'
 import { useWeb3 } from '@3rdweb/hooks'
+import { useNFTs, useContract, useAddress } from '@thirdweb-dev/react'
 import { ThirdwebSDK } from '@3rdweb/sdk'
 import { useRouter } from 'next/router'
 import NFTImage from '../../components/nft/NFTImage'
@@ -17,46 +18,43 @@ const style = {
 }
 
 const Nft = () => {
-  const { provider } = useWeb3()
   const [selectedNft, setSelectedNft] = useState()
   const [listings, setListings] = useState([])
   const router = useRouter()
 
-  const nftModule = useMemo(() => {
-    if (!provider) return
+  const userAddress = useAddress()
 
-    const sdk = new ThirdwebSDK(provider.getSigner())
-    return sdk.getNFTModule('0x37ccD16aDA40d2849aEAD68cdADE757F1011cC98')
-  }, [provider])
+  const contractAddress = '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
 
+  const NFTContract = useContract(contractAddress)
   // get all NFTs in the collection
-  useEffect(() => {
-    if (!nftModule) return
-    ;(async () => {
-      const nfts = await nftModule.getAll()
-
-      const selectedNftItem = nfts.find((nft) => nft.id === router.query.nftId)
-
-      setSelectedNft(selectedNftItem)
-    })()
-  }, [nftModule])
-
-  const marketPlaceModule = useMemo(() => {
-    if (!provider) return
-
-    const sdk = new ThirdwebSDK(provider.getSigner())
-
-    return sdk.getMarketplaceModule(
-      '0x491Cfd302ecba1Eb431C75a850A4EEd6F6699B60'
+  const getNFts = async () => {
+    const nfts = await NFTContract?.contract?.erc721.getAll()
+    const selectedNftItem = nfts.find(
+      (nft) => nft?.metadata.id === router.query.nftId
     )
-  }, [provider])
+
+    setSelectedNft(selectedNftItem)
+  }
 
   useEffect(() => {
-    if (!marketPlaceModule) return
-    ;(async () => {
-      setListings(await marketPlaceModule.getAllListings())
-    })()
-  }, [marketPlaceModule])
+    if (NFTContract?.contract) {
+      getNFts()
+    }
+  }, [userAddress, NFTContract?.contract])
+
+  const marketplaceContractAddress =
+    '0x85Bc5b0737AD0Ba5C6269ADF4DA5c21ABe09F7bB'
+  const marketplaceContract = useContract(marketplaceContractAddress)
+  const getAllListingsMarketPlace = async () => {
+    const marketplaces =
+      await marketplaceContract?.contract?.directListings.getAll()
+    setListings(marketplaces)
+  }
+
+  useEffect(() => {
+    getAllListingsMarketPlace()
+  }, [userAddress])
 
   return (
     <div>
@@ -73,7 +71,8 @@ const Nft = () => {
                 isListed={router.query.isListed}
                 selectedNft={selectedNft}
                 listings={listings}
-                marketPlaceModule={marketPlaceModule}
+                marketPlaceModule={marketplaceContract}
+                userAddress={userAddress}
               />
             </div>
           </div>

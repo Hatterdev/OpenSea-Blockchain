@@ -10,46 +10,63 @@ const style = {
   buttonText: `ml-2 text-lg font-semibold`,
 }
 
-const MakeOffer = ({ isListed, selectedNft, listings, marketPlaceModule }) => {
+const MakeOffer = ({
+  isListed,
+  selectedNft,
+  listings,
+  marketPlaceModule,
+  userAddress,
+}) => {
   const [selectedMarketNft, setSelectedMarketNft] = useState()
   const [enableButton, setEnableButton] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!listings || isListed === 'false') return
     ;(async () => {
       setSelectedMarketNft(
-        listings.find((marketNft) => marketNft.asset?.id === selectedNft.id)
+        listings.find(
+          (marketNft) => marketNft.asset?.id === selectedNft?.metadata.id
+        )
       )
     })()
-  }, [selectedNft, listings, isListed])
+  }, [selectedNft?.metadata, listings, isListed])
 
   useEffect(() => {
-    if (!selectedMarketNft || !selectedNft) return
+    if (!selectedMarketNft || !selectedNft?.metadata) return
 
     setEnableButton(true)
-  }, [selectedMarketNft, selectedNft])
+  }, [selectedMarketNft, selectedNft?.metadata])
 
-  const confirmPurchase = (toastHandler = toast) =>
-    toastHandler.success(`Purchase successful!`, {
-      style: {
-        background: '#04111d',
-        color: '#fff',
-      },
-    })
+  const confirmPurchase = (error, toastHandler = toast) => {
+    if (error) {
+      toastHandler.error(`Purchase rejected!`, {
+        style: {
+          background: '#eb4034',
+          color: '#fff',
+        },
+      })
+    } else {
+      toastHandler.success(`Purchase successful!`, {
+        style: {
+          background: '#04111d',
+          color: '#fff',
+        },
+      })
+    }
+  }
 
   const buyItem = async (
     listingId = selectedMarketNft.id,
     quantityDesired = 1,
     module = marketPlaceModule
   ) => {
-    await module
-      .buyoutDirectListing({
-        listingId: listingId,
-        quantityDesired: quantityDesired,
-      })
-      .catch((error) => console.error(error))
+    setError('')
+    await module?.contract?.directListings
+      .buyFromListing(listingId, quantityDesired, userAddress)
+      .catch((error) => setError(error))
 
-    confirmPurchase()
+    confirmPurchase(error)
   }
 
   return (

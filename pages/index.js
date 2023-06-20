@@ -1,4 +1,3 @@
-import Head from 'next/head'
 import Header from '../components/Header'
 import Hero from '../components/Hero'
 import { useWeb3 } from '@3rdweb/hooks'
@@ -57,12 +56,6 @@ export default function Home() {
         </>
       ) : (
         <div className={style.walletConnectWrapper}>
-          {/* <button
-            className={style.button}
-            onClick={() => connectWallet('injected')}
-          >
-            Connect Wallet
-          </button> */}
           <ConnectWallet />
           <div className={style.details}>
             You need Chrome to be
