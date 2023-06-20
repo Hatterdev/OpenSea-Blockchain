@@ -37,7 +37,7 @@ const Collection = () => {
   const router = useRouter()
   const { collectionId } = router.query
   const [collection, setCollection] = useState({})
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [nfts, setNfts] = useState([])
   const [listings, setListings] = useState([])
 
@@ -92,7 +92,6 @@ const Collection = () => {
   }
 
   const getALL = () => {
-    setIsLoading(true)
     Promise.all([
       getNFts(),
       fetchCollectionData(),

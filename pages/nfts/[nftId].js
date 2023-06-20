@@ -1,8 +1,6 @@
 import Header from '../../components/Header'
-import { useEffect, useMemo, useState } from 'react'
-import { useWeb3 } from '@3rdweb/hooks'
-import { useNFTs, useContract, useAddress } from '@thirdweb-dev/react'
-import { ThirdwebSDK } from '@3rdweb/sdk'
+import { useEffect, useState } from 'react'
+import { useContract, useAddress } from '@thirdweb-dev/react'
 import { useRouter } from 'next/router'
 import NFTImage from '../../components/nft/NFTImage'
 import GeneralDetails from '../../components/nft/GeneralDetails'
@@ -23,9 +21,7 @@ const Nft = () => {
   const router = useRouter()
 
   const userAddress = useAddress()
-
   const contractAddress = '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
-
   const NFTContract = useContract(contractAddress)
   // get all NFTs in the collection
   const getNFts = async () => {
