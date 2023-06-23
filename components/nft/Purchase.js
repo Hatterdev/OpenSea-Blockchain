@@ -47,7 +47,6 @@ const Purchase = ({
     quantityDesired = 1,
     module = marketPlaceModule
   ) => {
-    setError('')
     await module?.contract?.directListings
       .buyFromListing(listingId, quantityDesired, userAddress)
       .then(() => {
