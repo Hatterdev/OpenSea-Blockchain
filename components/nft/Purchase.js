@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-
+import { NATIVE_TOKEN_ADDRESS } from '@thirdweb-dev/sdk'
 import { HiTag } from 'react-icons/hi'
 import { IoMdWallet } from 'react-icons/io'
 import toast, { Toaster } from 'react-hot-toast'
@@ -10,37 +10,23 @@ const style = {
   buttonText: `ml-2 text-lg font-semibold`,
 }
 
-const MakeOffer = ({
+const Purchase = ({
   isListed,
   selectedNft,
-  listings,
+  listing,
   marketPlaceModule,
   userAddress,
 }) => {
-  const [selectedMarketNft, setSelectedMarketNft] = useState()
   const [enableButton, setEnableButton] = useState(false)
-  const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!listings || isListed === 'false') return
-    ;(async () => {
-      setSelectedMarketNft(
-        listings.find(
-          (marketNft) => marketNft.asset?.id === selectedNft?.metadata.id
-        )
-      )
-    })()
-  }, [selectedNft?.metadata, listings, isListed])
-
-  useEffect(() => {
-    if (!selectedMarketNft || !selectedNft?.metadata) return
-
+    if (!listing || !isListed) return
     setEnableButton(true)
-  }, [selectedMarketNft, selectedNft?.metadata])
+  }, [listing, selectedNft?.metadata])
 
   const confirmPurchase = (error, toastHandler = toast) => {
     if (error) {
-      toastHandler.error(`Purchase rejected!`, {
+      toastHandler.error(`Purchase failed, ${error?.reason}!`, {
         style: {
           background: '#eb4034',
           color: '#fff',
@@ -57,16 +43,58 @@ const MakeOffer = ({
   }
 
   const buyItem = async (
-    listingId = selectedMarketNft.id,
+    listingId,
     quantityDesired = 1,
     module = marketPlaceModule
   ) => {
     setError('')
     await module?.contract?.directListings
       .buyFromListing(listingId, quantityDesired, userAddress)
-      .catch((error) => setError(error))
+      .then(() => {
+        confirmPurchase()
+      })
+      .catch((error) => {
+        confirmPurchase(error)
+      })
+  }
 
-    confirmPurchase(error)
+  const makeOffer = async () => {
+    // Data of the offer you want to make
+    const offer = {
+      // address of the contract the asset you want to make an offer for
+      assetContractAddress: listing?.assetContractAddress,
+      // token ID of the asset you want to buy
+      tokenId: listing?.tokenId,
+      // how many of the asset you want to buy
+      quantity: 1,
+      // address of the currency contract that you offer to pay in
+      currencyContractAddress: NATIVE_TOKEN_ADDRESS,
+      // Total price you offer to pay for the mentioned token(s)
+      totalPrice: '0.011',
+      // Offer valid until
+      endTimestamp: new Date(),
+    }
+
+    await marketPlaceModule?.contract?.offers
+      .makeOffer(offer)
+      .then((tx) => {
+        const receipt = tx.receipt // the transaction receipt
+        const id = tx.id // the id of the newly created offer
+        toast.success(`Make offer success!`, {
+          style: {
+            background: '#04111d',
+            color: '#fff',
+          },
+        })
+      })
+      .catch((error) => {
+        toast.error(`Make Offer fail, ${error?.reason}!`, {
+          style: {
+            background: '#eb4034',
+            color: '#fff',
+          },
+        })
+      })
   }
 
   return (
@@ -76,7 +104,7 @@ const MakeOffer = ({
         <>
           <div
             onClick={() => {
-              enableButton ? buyItem(selectedMarketNft.id, 1) : null
+              enableButton ? buyItem(listing?.id, 1) : null
             }}
             className={`${style.button} bg-[#2081e2] hover:bg-[#42a0ff]`}
           >
@@ -87,7 +115,9 @@ const MakeOffer = ({
             className={`${style.button} border border-[#151c22]  bg-[#363840] hover:bg-[#4c505c]`}
           >
             <HiTag className={style.buttonIcon} />
-            <div className={style.buttonText}>Make Offer</div>
+            <div onClick={makeOffer} className={style.buttonText}>
+              Make Offer
+            </div>
           </div>
         </>
       ) : (
@@ -100,4 +130,4 @@ const MakeOffer = ({
   )
 }
 
-export default MakeOffer
+export default Purchase

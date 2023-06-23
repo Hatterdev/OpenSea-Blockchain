@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter, withRouter } from 'next/router'
 import Image from 'next/image'
 import { useContract, useAddress } from '@thirdweb-dev/react'
 import { client } from '../../lib/sanityClient'
@@ -64,7 +64,7 @@ const Collection = () => {
   const marketplaceContract = useContract(marketplaceContractAddress)
   const getAllListingsMarketPlace = async () => {
     const marketplaces =
-      await marketplaceContract?.contract?.directListings.getAll()
+      await marketplaceContract?.contract?.directListings.getAllValid()
     if (marketplaces) {
       setListings(marketplaces)
     }
@@ -221,11 +221,12 @@ const Collection = () => {
         )}
       </div>
       {!isLoading && (
-        <div className="flex flex-wrap ">
+        <div className="flex flex-wrap">
           {nfts?.map((nftItem, id) => (
             <NFTCard
               key={id}
               nftItem={nftItem?.metadata}
+              nft={nftItem}
               title={collection?.title}
               listings={listings}
             />
@@ -236,4 +237,4 @@ const Collection = () => {
   )
 }
 
-export default Collection
+export default withRouter(Collection)

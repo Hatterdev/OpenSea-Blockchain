@@ -19,15 +19,17 @@ const style = {
   likeIcon: `text-xl mr-2`,
 }
 
-const NFTCard = ({ nftItem, title, listings = [] }) => {
+const NFTCard = ({ nftItem, title, nft, listings = [] }) => {
   const [isListed, setIsListed] = useState(false)
   const [price, setPrice] = useState(0)
+  const [listing, setListing] = useState(0)
 
   useEffect(() => {
     const listing = listings.find((listing) => listing.asset.id === nftItem.id)
     if (Boolean(listing)) {
       setIsListed(true)
       setPrice(listing.currencyValuePerToken?.displayValue)
+      setListing(listing)
     }
   }, [listings, nftItem])
 
@@ -37,7 +39,11 @@ const NFTCard = ({ nftItem, title, listings = [] }) => {
       onClick={() => {
         Router.push({
           pathname: `/nfts/${nftItem.id}`,
-          query: { isListed: isListed },
+          query: {
+            isListed: isListed,
+            nft: JSON.stringify(nft),
+            listing: JSON.stringify(listing),
+          },
         })
       }}
     >

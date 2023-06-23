@@ -17,40 +17,41 @@ const style = {
 
 const Nft = () => {
   const [selectedNft, setSelectedNft] = useState()
-  const [listings, setListings] = useState([])
+  const [listing, setListing] = useState({})
   const router = useRouter()
 
   const userAddress = useAddress()
-  const contractAddress = '0xf0027883F49A7d03223f919bB5Cc1f3995e891C6'
-  const NFTContract = useContract(contractAddress)
-  // get all NFTs in the collection
-  const getNFts = async () => {
-    const nfts = await NFTContract?.contract?.erc721.getAll()
-    const selectedNftItem = nfts.find(
-      (nft) => nft?.metadata.id === router.query.nftId
-    )
-
-    setSelectedNft(selectedNftItem)
-  }
 
   useEffect(() => {
-    if (NFTContract?.contract) {
-      getNFts()
+    if (userAddress) {
+      const nftItem = router?.query.nft
+      const selectedItem = JSON.parse(nftItem)
+      setSelectedNft(selectedItem)
+
+      const listing = router?.query.listing
+      const selectedListing = JSON.parse(listing)
+      setListing(selectedListing)
     }
-  }, [userAddress, NFTContract?.contract])
+  }, [userAddress])
 
   const marketplaceContractAddress =
     '0x85Bc5b0737AD0Ba5C6269ADF4DA5c21ABe09F7bB'
   const marketplaceContract = useContract(marketplaceContractAddress)
-  const getAllListingsMarketPlace = async () => {
-    const marketplaces =
-      await marketplaceContract?.contract?.directListings.getAll()
-    setListings(marketplaces)
+  const getEvents = async () => {
+    const filters = {
+      fromBlock: 0,
+      toBlock: 10000,
+      order: 'desc',
+    }
+
+    const events = await marketplaceContract?.contract?.events?.getAllEvents(
+      filters
+    )
   }
 
   useEffect(() => {
-    getAllListingsMarketPlace()
-  }, [userAddress])
+    getEvents()
+  }, [])
 
   return (
     <div>
@@ -66,7 +67,7 @@ const Nft = () => {
               <Purchase
                 isListed={router.query.isListed}
                 selectedNft={selectedNft}
-                listings={listings}
+                listing={listing}
                 marketPlaceModule={marketplaceContract}
                 userAddress={userAddress}
               />
