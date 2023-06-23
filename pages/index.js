@@ -1,6 +1,6 @@
 import Header from '../components/Header'
 import Hero from '../components/Hero'
-import { ConnectWallet, useAddress } from '@thirdweb-dev/react'
+import { useAddress } from '@thirdweb-dev/react'
 import { useEffect, useState } from 'react'
 import { client } from '../lib/sanityClient'
 import toast, { Toaster } from 'react-hot-toast'
@@ -50,20 +50,8 @@ export default function Home() {
   return (
     <div className={style.wrapper}>
       <Toaster position="top-center" reverseOrder={false} />
-      {address ? (
-        <>
-          <Header />
-          <Hero />
-        </>
-      ) : (
-        <div className={style.walletConnectWrapper}>
-          <ConnectWallet />
-          <div className={style.details}>
-            You need Chrome to be
-            <br /> able to run this app.
-          </div>
-        </div>
-      )}
+      <Header />
+      <Hero address={address} />
     </div>
   )
 }

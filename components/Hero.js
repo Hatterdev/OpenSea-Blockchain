@@ -1,6 +1,8 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 
+import { ConnectWallet } from '@thirdweb-dev/react'
+
 const style = {
   wrapper: `relative`,
   container: `before:content-[''] before:bg-red-500 before:absolute before:top-0 before:left-0 before:right-0 before:bottom-0 before:bg-[url('https://lh3.googleusercontent.com/ujepnqpnL0nDQIHsWxlCXzyw4pf01yjz1Jmb4kAQHumJAPrSEj0-e3ABMZlZ1HEpJoqwOcY_kgnuJGzfXbd2Tijri66GXUtfN2MXQA=s250')] before:bg-cover before:bg-center before:opacity-30 before:blur`,
@@ -18,7 +20,7 @@ const style = {
   infoIcon: `flex justify-end items-center flex-1 text-[#8a939b] text-3xl font-bold`,
 }
 
-const Hero = () => {
+const Hero = ({ address }) => {
   const router = useRouter()
   const handleClick = () => {
     router.push('/collections/0xf0027883F49A7d03223f919bB5Cc1f3995e891C6')
@@ -35,9 +37,14 @@ const Hero = () => {
               OpenSea is the world&apos;s first and largest NFT marketplace
             </div>
             <div className={style.ctaContainer}>
-              <button className={style.accentedButton} onClick={handleClick}>
-                Explore
-              </button>
+              {address ? (
+                <button className={style.accentedButton} onClick={handleClick}>
+                  Explore
+                </button>
+              ) : (
+                <ConnectWallet theme="light" />
+              )}
+
               {/* <button className={style.button}>Create</button> */}
             </div>
           </div>
