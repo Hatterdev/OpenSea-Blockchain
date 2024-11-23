@@ -11,7 +11,7 @@ function MyApp({ Component, pageProps }) {
     >
       <Head>
         <link rel="icon" href="/opensea.png" type="image/png" sizes="32x32" />
-        <title>OpenSea, the largest NFT marketplace</title>
+        <title>GIC SPORT</title>
       </Head>
       <Component {...pageProps} />
     </ThirdwebProvider>
